@@ -11,6 +11,7 @@ import java.time.format.DateTimeFormatter
 
 open class DateTimeConstant {
 
+
     companion object {
         const val STRING_1970_0_0 = "1970-01-01 00:00:00"
         const val STRING_TIME_BEGIN = "00:00:00.000000000"
