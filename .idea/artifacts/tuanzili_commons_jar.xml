@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="tuanzili-commons:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/tuanzili_commons_jar</output-path>
+    <root id="archive" name="tuanzili-commons.jar">
+      <element id="module-output" name="tuanzili-commons.main" />
+    </root>
+  </artifact>
+</component>
