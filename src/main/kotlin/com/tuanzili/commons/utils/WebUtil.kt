@@ -1,4 +1,4 @@
-package com.tuanzili.commons.utils
+package com.jxpanda.common.utils
 
 class WebUtil {
     companion object {

@@ -1,7 +1,7 @@
-package com.tuanzili.commons.encrypt
+package com.jxpanda.common.encrypt
 
-import com.tuanzili.commons.constants.enumerations.EncryptAlgorithm
-import com.tuanzili.commons.utils.EncryptUtil
+import com.jxpanda.common.constants.enumerations.EncryptAlgorithm
+import com.jxpanda.common.utils.EncryptUtil
 import java.io.ByteArrayOutputStream
 import java.security.*
 import java.security.spec.PKCS8EncodedKeySpec
@@ -21,7 +21,7 @@ open class RSA(
          * 等于keySize / 8
          * */
         private val DECRYPT_SIZE: Int = keySize / 8,
-        private val algorithm: EncryptAlgorithm = EncryptAlgorithm.RSA
+        algorithm: EncryptAlgorithm = EncryptAlgorithm.RSA
 ) : Encrypt(algorithm) {
 
     fun generatorKeyPair(keySize: Int = 2048): KeyPair {
@@ -33,16 +33,21 @@ open class RSA(
     /**
      * 加密
      * */
-    override fun encrypt(content: String, key: Key): String {
-        return Base64.encodeToString(sectionFunction(content.toByteArray(), encoder(key), ENCRYPT_SIZE))
+    fun encrypt(content: String, key: Key): String {
+        return encrypt(content, key) {
+            sectionFunction(content.toByteArray(), encoder(key), ENCRYPT_SIZE)
+        }
     }
 
     /**
      * 解密
      * */
-    override fun decrypt(content: String, key: Key): String {
-        return String(sectionFunction(content.decodeBase64(), decoder(key), DECRYPT_SIZE))
+    fun decrypt(content: String, key: Key): String {
+        return decrypt(content, key){
+            sectionFunction(content.decodeBase64(), decoder(key), DECRYPT_SIZE)
+        }
     }
+
 
     /**
      * RSA签名函数

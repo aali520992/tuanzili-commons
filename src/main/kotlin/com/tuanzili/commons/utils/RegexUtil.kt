@@ -1,6 +1,6 @@
-package com.tuanzili.commons.utils
+package com.jxpanda.common.utils
 
-import com.tuanzili.commons.constants.DateTimeConstant
+import com.jxpanda.common.constants.DateTimeConstant
 import java.time.format.DateTimeFormatter
 
 val EMAIL = Regex("^[\\w\\d]+([-_.][\\w\\d]+)*@([\\w\\d]+[-.])+(com|cn|com.cn)\$")

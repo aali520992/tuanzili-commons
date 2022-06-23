@@ -1,10 +1,10 @@
-package com.tuanzili.commons.base
+package com.jxpanda.common.base
 
 import java.io.Serializable
 import java.time.LocalDateTime
 
 /**
- * Created by tuanzili on 2018/8/27
+ * Created by Panda on 2018/8/27
  */
 @Suppress("UNCHECKED_CAST")
 abstract class DTO<E : Entity>(

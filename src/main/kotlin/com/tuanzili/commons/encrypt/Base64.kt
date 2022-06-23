@@ -1,4 +1,4 @@
-package com.tuanzili.commons.encrypt
+package com.jxpanda.common.encrypt
 
 open class Base64 {
     companion object {
@@ -73,4 +73,3 @@ fun String.fromBase64(): String = Base64.decodeToString(this)
  * byte数组做base64编码
  * */
 fun ByteArray.toBase64(): String = Base64.encodeToString(this)
-

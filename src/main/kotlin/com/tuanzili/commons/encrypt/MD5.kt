@@ -1,8 +1,8 @@
-package com.tuanzili.commons.encrypt
+package com.jxpanda.common.encrypt
 
-import com.tuanzili.commons.constants.enumerations.EncryptAlgorithm
-import com.tuanzili.commons.utils.EncryptUtil
-import com.tuanzili.commons.utils.toHex
+import com.jxpanda.common.constants.enumerations.EncryptAlgorithm
+import com.jxpanda.common.utils.EncryptUtil
+import com.jxpanda.common.utils.toHex
 
 /**
  * MD5加密算法
@@ -11,8 +11,8 @@ open class MD5 : Digest(EncryptAlgorithm.MD5) {
     override fun encrypt(content: String, toUpperCase: Boolean): String {
         val secretBytes: ByteArray = digest(content)
         val hexBuilder = StringBuilder()
-        for (i in 0 until secretBytes.size) {
-            val byte = secretBytes[i].toInt() and 0XFF
+        for (element in secretBytes) {
+            val byte = element.toInt() and 0XFF
             if (byte < 16) {
                 hexBuilder.append("0")
             }

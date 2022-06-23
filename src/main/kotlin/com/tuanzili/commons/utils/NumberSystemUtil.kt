@@ -1,4 +1,4 @@
-package com.tuanzili.commons.utils
+package com.jxpanda.common.utils
 
 import java.lang.StringBuilder
 
@@ -50,6 +50,11 @@ fun Long.to32System(): String {
     }
     return stb.toString()
 }
+
+/**
+ * 从10进制转为32进制
+ * */
+fun String.to32System(): String = this.toLong().to32System()
 
 /**
  * 从32进制转为10进制

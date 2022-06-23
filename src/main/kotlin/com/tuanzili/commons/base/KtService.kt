@@ -1,4 +1,4 @@
-package com.tuanzili.commons.base
+package com.jxpanda.common.base
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper
@@ -20,9 +20,19 @@ interface KtService<T> : IService<T> {
 
     override fun list(queryWrapper: Wrapper<T>): List<T>
 
+    fun delete(queryWrapper: Wrapper<T>): Boolean
+
+    fun deleteById(id: Serializable): Boolean
+
+    fun deleteByIds(ids: List<Serializable>): Boolean
+
+    fun updateBatchById(updaterList: List<Entity.Updater<T>>): Boolean
+
     fun update(updater: Entity.Updater<T>): Boolean
 
     fun updateById(updater: Entity.Updater<T>): Boolean
+
+    fun saveOrUpdate(updater: Entity.Updater<T>): Boolean
 
     fun isExisting(queryWrapper: Wrapper<T>): Boolean
 
@@ -39,5 +49,7 @@ interface KtService<T> : IService<T> {
     fun <K> associateBy(keySelector: (T) -> K, queryWrapper: Wrapper<T> = QueryWrapper()): Map<K, T>
 
     fun pagination(seeker: Seeker<T>): Pagination<T>
+
+    fun selectList(seeker: Seeker<T>): List<T>
 
 }

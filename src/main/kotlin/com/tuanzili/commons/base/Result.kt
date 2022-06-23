@@ -1,4 +1,4 @@
-package com.tuanzili.commons.base
+package com.jxpanda.common.base
 
 import java.io.Serializable
 
@@ -71,9 +71,9 @@ data class Result<T>(
         @JvmStatic
         @JvmOverloads
         fun <T> ok(data: T? = null,
+                   extend: Any = Any(),
                    message: String = MESSAGE_SUCCESS,
-                   httpCode: CODE = if (data == null) CODE.NO_CONTENT else CODE.OK
-        ): Result<T> = Result(httpCode, data, message)
+                   httpCode: CODE = if (data == null) CODE.NO_CONTENT else CODE.OK): Result<T> = Result(httpCode, data, message, extend)
 
         /**
          * 请求失败（返回404）
@@ -114,7 +114,7 @@ data class Result<T>(
          * 服务器内部报错
          * */
         @JvmStatic
-        fun <T> error(message: String = ""): Result<T> = Result(CODE.INTERNAL_SERVER_ERROR,message = message)
+        fun <T> error(message: String = ""): Result<T> = Result(CODE.INTERNAL_SERVER_ERROR, message = message)
 
     }
 

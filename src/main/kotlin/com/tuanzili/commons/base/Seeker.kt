@@ -1,12 +1,11 @@
-package com.tuanzili.commons.base
+package com.jxpanda.common.base
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.tuanzili.commons.constants.DateTimeConstant
-import com.tuanzili.commons.utils.toDateTimeString
+import com.jxpanda.common.constants.DateTimeConstant
+import com.jxpanda.common.utils.fromJson
+import com.jxpanda.common.utils.toDateTimeString
 import java.lang.reflect.Method
-import java.time.LocalDateTime
-import java.util.function.Function
+import java.util.function.Consumer
 
 /**
  * 搜索对象封装，该类的功能是把外部传入的筛选条件构造成为一个mybatis-plus的QueryWrapper对象
@@ -15,19 +14,23 @@ import java.util.function.Function
  * */
 @Suppress("UNCHECKED_CAST")
 data class Seeker<T>(
-    /**
+        /**
          * 筛选条件列表（一群探机）
          * */
         val probes: MutableList<Probe> = mutableListOf(),
-    /**
+        /**
          * 排序条件列表（一群分拣机）
          * */
         val sorters: MutableList<Sorter> = mutableListOf(),
-    /**
+        /**
          * 分页对象
          * */
         val pagination: Pagination<T> = Pagination()
 ) {
+
+    fun getProbe(field: String): Probe {
+        return probes.firstOrNull() { it.field == field } ?: Probe(field, "")
+    }
 
     /**
      * 构建mybatis-plus用的查询对象
@@ -35,7 +38,7 @@ data class Seeker<T>(
     fun buildQueryWrapper(): QueryWrapper<T> {
         val queryWrapper = QueryWrapper<T>()
         // 构建条件（测试阶段，暂时不考虑突触的链接关系）
-        probes.filter { it.extend != Extend.SKIP }.forEach {
+        probes.filter { it.extend != Extend.SKIP }.forEach { it ->
             val probe = it.extend.handle(it)
             // 如果有OR条件拼接，执行OR条件（复杂的AND和OR条件拼接暂时不实现）
             if (probe.synapse == Synapse.OR) {
@@ -79,25 +82,25 @@ data class Seeker<T>(
      * 探机对象
      * */
     data class Probe(
-        /**
+            /**
              * 字段
              * */
             val field: String = "",
-        /**
+            /**
              * 值（以列表形式入参）
              * */
             val value: Any = Any(),
-        /**
+            /**
              * 规则（取值都是QueryWrapper的【函数名】）
              * */
             val rule: Rule = Rule.EQ,
-        /**
+            /**
              * 扩展参数（例如：日期筛选的时候，入参DAY，就表明精确到日；入参SECOND，表明精确到秒）
              * 这个参数是一个补充参数，方便以后扩展
              * 默认不取值
              * */
             val extend: Extend = Extend.NONE,
-        /**
+            /**
              * 这个单词是突触的意思，取值，AND、OR，默认AND
              * 连接两个条件对象之间的方式，AND（交集）或者OR（并集）
              * */
@@ -134,12 +137,20 @@ data class Seeker<T>(
         LT(QueryWrapper::class.java.getMethod("lt", Any::class.java, Any::class.java)),
         LE(QueryWrapper::class.java.getMethod("le", Any::class.java, Any::class.java)),
         IN(QueryWrapper::class.java.getMethod("in", Any::class.java, Collection::class.java)),
+        NOT_IN(QueryWrapper::class.java.getMethod("notIn", Any::class.java, Collection::class.java)),
         LIKE(QueryWrapper::class.java.getMethod("like", Any::class.java, Any::class.java)),
         BETWEEN(QueryWrapper::class.java.getMethod("between", Any::class.java, Any::class.java, Any::class.java)) {
             override fun <T> execute(queryWrapper: QueryWrapper<T>, field: String, param: Any) {
                 // BETWEEN的调用要把入参拆分，不然会报参数数量不对的异常
+                // 约定，between的入参用数组传入进来
                 val arrayParam = param as ArrayList<*>
                 this.method.invoke(queryWrapper, field, arrayParam[0], arrayParam[1])
+            }
+        },
+        REGEXP(QueryWrapper::class.java.getMethod("apply", String::class.java, Array<Any>::class.java)) {
+            override fun <T> execute(queryWrapper: QueryWrapper<T>, field: String, param: Any) {
+                // 注入正则查询，使用mybatis-plus的apply函数，注入REGEXP的查询方式
+                this.method.invoke(queryWrapper, "$field REGEXP {0}", arrayOf(param))
             }
         };
 
@@ -163,7 +174,7 @@ data class Seeker<T>(
     enum class Synapse(
             val method: Method
     ) {
-        AND(QueryWrapper::class.java.getMethod("and", Function::class.java)),
+        AND(QueryWrapper::class.java.getMethod("and", Consumer::class.java)),
         OR(QueryWrapper::class.java.getMethod("or"));
     }
 
@@ -184,7 +195,7 @@ data class Seeker<T>(
                 // 其格式为【yyyy-MM-dd】或【yyyy-MM-dd HH:mm:ss】
                 val param = it.value as ArrayList<String>
                 // 处理逻辑是这样的，如果一个时间是yyyy-MM-dd HH:mm:ss的格式，不错处理
-                // 否则，如果是第一个参数，日期设定到当天的00:00:00，第二个参数设定为23:59:59.999999999
+                // 否则，如果是第一个参数，日期设定到当天的00:00:00，第二个参数设定为23:59:59
                 // 另外一个约定，这个函数之所以要这么处理，是因为所有数据库日期类型都用datetime类型
                 param[0] = param[0].toDateTimeString()
                 param[1] = param[1].toDateTimeString(DateTimeConstant.STRING_TIME_END)
@@ -195,28 +206,11 @@ data class Seeker<T>(
 
 }
 
-data class Test(
-        val username: String,
-        val createDate: LocalDateTime
-)
-
 fun main() {
     val json = """
-    {
-        "probes":[
-            {
-                "field":"created_date",
-                "value":["2019-07-28","2019-07-29"],
-                "rule":"BETWEEN"
-            }
-        ]
-    }
-""".trimIndent()
-
-    val jackson = ObjectMapper()
-    val seeker = jackson.readValue(json, Seeker::class.java)
-    val queryWrapper = seeker.buildQueryWrapper()
-    println(queryWrapper.sqlSegment)
-    println(queryWrapper.paramNameValuePairs)
-
+        {"probes":[{"field":"user_id","value":"1212644263316447233","rule":"EQ","extend":"NONE","synapse":"AND"}],"pagination":{"current":1,"size":10}}
+    """.trimIndent()
+    val seeker = json.fromJson<Seeker<Any>>()
+    val buildQueryWrapper = seeker.buildQueryWrapper()
+    println(buildQueryWrapper.sqlSegment)
 }

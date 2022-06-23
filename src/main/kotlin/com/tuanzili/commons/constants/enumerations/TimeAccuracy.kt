@@ -1,4 +1,4 @@
-package com.tuanzili.commons.constants.enumerations
+package com.jxpanda.common.constants.enumerations
 
 import java.time.temporal.ChronoField
 

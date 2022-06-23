@@ -1,35 +1,59 @@
-package com.tuanzili.commons.encrypt
+package com.jxpanda.common.encrypt
 
-import com.tuanzili.commons.constants.enumerations.EncryptAlgorithm
+import com.jxpanda.common.constants.enumerations.EncryptAlgorithm
+import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.security.Key
+import java.security.Security
 import javax.crypto.Cipher
 import javax.crypto.spec.SecretKeySpec
 
-open class Encrypt(private val algorithm: EncryptAlgorithm) {
+open class Encrypt(protected val algorithm: EncryptAlgorithm) {
 
-    private val cipher: Cipher = Cipher.getInstance(algorithm.value)!!
+    init {
+        Security.addProvider(BouncyCastleProvider())
+    }
 
-    fun encoder(key: Key): Cipher {
+    protected val cipher: Cipher = Cipher.getInstance(algorithm.value)!!
+
+    open fun encoder(key: Key): Cipher {
         return cipher.apply {
-            init(Cipher.ENCRYPT_MODE, key)
+            cipher.init(Cipher.ENCRYPT_MODE, key)
         }
     }
 
-    fun decoder(key: Key): Cipher {
+    open fun decoder(key: Key): Cipher {
         return cipher.apply {
-            init(Cipher.DECRYPT_MODE, key)
+            cipher.init(Cipher.DECRYPT_MODE, key)
         }
     }
 
-    open fun encrypt(content: String, key: Key): String {
-        return Base64.encodeToString(encoder(key).doFinal(content.toByteArray()))
+    fun encrypt(content: String, key: Key, encryptFunction: () -> ByteArray = { encryptFunction(content, key) }): String {
+        return encryptFunction().toBase64()
     }
 
-    open fun decrypt(content: String, key: Key): String {
-        return String(decoder(key).doFinal(Base64.decode(content)))
+    fun decrypt(content: String, key: Key, decryptFunction: () -> ByteArray = { decryptFunction(content, key) }): String {
+        return String(decryptFunction())
+    }
+
+    open fun encrypt(content: String, key: String): String {
+        return encrypt(content, key(key))
+    }
+
+    open fun decrypt(content: String, key: String): String {
+        return decrypt(content, key(key))
+    }
+
+    private fun encryptFunction(content: String, key: Key): ByteArray {
+        return encoder(key).doFinal(content.toByteArray())
+    }
+
+    private fun decryptFunction(content: String, key: Key): ByteArray {
+        return decoder(key).doFinal(content.decodeBase64())
     }
 
     open fun key(password: String): Key {
         return SecretKeySpec(password.toByteArray(), algorithm.value)
     }
+
+
 }

@@ -1,4 +1,4 @@
-package com.tuanzili.commons.encrypt
+package com.jxpanda.common.encrypt
 
 open class Base32{
 

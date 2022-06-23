@@ -1,8 +1,9 @@
-package com.tuanzili.commons.utils
+package com.jxpanda.common.utils
 
 import org.apache.commons.lang3.RandomStringUtils
 import org.apache.commons.lang3.RandomUtils
 import java.math.BigInteger
+import kotlin.math.pow
 
 class CodeUtil {
     companion object {
@@ -18,6 +19,16 @@ class CodeUtil {
         private const val TIMESTAMP_2018_0_0 = 1514736000000L
 
         /**
+         * 生成一个int类型的随机数
+         * @param startInclusive 范围最小值
+         * @param endExclusive 范围最大值
+         * */
+        @JvmStatic
+        fun randomInt(startInclusive: Int = 0, endExclusive: Int = Int.MAX_VALUE): Int {
+            return RandomUtils.nextInt(startInclusive, endExclusive)
+        }
+
+        /**
          * 生成一个随机数
          * */
         @JvmStatic
@@ -28,8 +39,8 @@ class CodeUtil {
         @JvmStatic
         @JvmOverloads
         fun nextInt(digital: Int = 6): Int {
-            val ceiling = Math.pow(10.0, digital.toDouble()).toInt()
-            val floor = Math.pow(10.0, digital - 1.0).toInt()
+            val ceiling = 10.0.pow(digital.toDouble()).toInt()
+            val floor = 10.0.pow(digital - 1.0).toInt()
             return nextInt(floor, ceiling)
         }
 
@@ -61,7 +72,6 @@ class CodeUtil {
 
         /**
          * 创建雪花算法的对象，默认会静态存储一个workerId为1的对象
-         *
          * */
         private fun snowflake(workerId: Int = 1): Snowflake {
             return if (workerId == 1) {
@@ -129,9 +139,7 @@ class CodeUtil {
         private var lastTimestamp = -1L
 
         init {
-            if (workerId > this.maxWorkerId || workerId < 0) {
-                throw IllegalArgumentException("""worker Id can't be greater than $maxWorkerId or less than 0""")
-            }
+            require(!(workerId > this.maxWorkerId || workerId < 0)) { "worker Id can't be greater than $maxWorkerId or less than 0" }
         }
 
         @Synchronized
@@ -195,7 +203,7 @@ fun ByteArray.toHex(): String = BigInteger(1, this).toString(16)
 /**
  * 字符串转为16进制的函数
  * 这个函数只是简易的转换，并不是通用的
- * 不简易把转换的结果用以计算
+ * 不建议把转换的结果用以计算
  * */
 fun String.toHex(): String {
     val hexString = try {

@@ -1,9 +1,10 @@
-package com.tuanzili.commons.constants.enumerations
+package com.jxpanda.common.constants.enumerations
 
 /**
  * 加密算法的枚举
  * */
 enum class EncryptAlgorithm(val value: String, val description: String) {
+    AES_CBC_PKCS7("AES/CBC/PKCS7Padding","AES-128-CBC,PKCS7填充加密算法"),
     AES("AES", "AES加密算法"),
     RSA("RSA", "RSA加密算法"),
     MD5("MD5", "MD5加密算法"),

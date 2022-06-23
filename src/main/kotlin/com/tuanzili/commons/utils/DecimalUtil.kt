@@ -1,6 +1,6 @@
-package com.tuanzili.commons.utils
+package com.jxpanda.common.utils
 
-import com.tuanzili.commons.constants.DecimalConstant
+import com.jxpanda.common.constants.DecimalConstant
 import java.math.BigDecimal
 import java.text.DecimalFormat
 
@@ -55,8 +55,20 @@ class DecimalUtil {
             }
         }
 
+        fun max(v1: BigDecimal, v2: BigDecimal): BigDecimal {
+            return if (v1 > v2) v1 else v2
+        }
+
+        fun max(vararg values: BigDecimal): BigDecimal {
+            return values.max() ?: BigDecimal.ZERO
+        }
+
         fun min(v1: BigDecimal, v2: BigDecimal): BigDecimal {
             return if (v1 > v2) v2 else v1
+        }
+
+        fun min(vararg values: BigDecimal): BigDecimal {
+            return values.min() ?: BigDecimal.ZERO
         }
 
     }
@@ -69,6 +81,10 @@ fun BigDecimal.formattingWithSign(format: DecimalFormat = DecimalConstant.FORMAT
 }
 
 fun String.toBigDecimal(): BigDecimal = DecimalUtil.parse(this)
+
+fun <T> List<T>.sigma(selector: (T) -> BigDecimal): BigDecimal = DecimalUtil.sigma(this.map { selector(it) })
+
+fun BigDecimal.toCNY(): String = "￥${this.formatting()}"
 
 /**
  * 转成百分比的形式输出

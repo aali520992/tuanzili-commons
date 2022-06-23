@@ -1,8 +1,8 @@
 //@file:JvmName("DateTimeUtil")
-package com.tuanzili.commons.utils
+package com.jxpanda.common.utils
 
-import com.tuanzili.commons.constants.DateTimeConstant
-import com.tuanzili.commons.constants.enumerations.TimeAccuracy
+import com.jxpanda.common.constants.DateTimeConstant
+import com.jxpanda.common.constants.enumerations.TimeAccuracy
 import java.time.*
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -108,7 +108,17 @@ class DateTimeUtil {
 
         @JvmStatic
         fun differenceOfMinutes(date1: LocalDateTime, date2: LocalDateTime): Int {
-            return abs(date1.toEpochSecond(DateTimeConstant.Zone.UTC_8) - date2.toEpochSecond(DateTimeConstant.Zone.UTC_8)).toInt() / 60
+            return differenceOfSeconds(date1, date2).toInt() / 60
+        }
+
+        @JvmStatic
+        fun differenceOfSeconds(date1: LocalDateTime, date2: LocalDateTime): Long {
+            return differenceOfMillis(date1, date2) / 1000
+        }
+
+        @JvmStatic
+        fun differenceOfMillis(date1: LocalDateTime, date2: LocalDateTime): Long {
+            return abs(date1.toJavaDate().time - date2.toJavaDate().time)
         }
 
         /**
@@ -143,15 +153,17 @@ class DateTimeUtil {
 /**
  * 日期是否相同
  * */
-fun LocalDateTime.isSame(date: LocalDateTime?, accuracy: TimeAccuracy = TimeAccuracy.SECOND): Boolean =
-    DateTimeUtil.isSame(this, date, accuracy)
+fun LocalDateTime.isSame(date: LocalDateTime?, accuracy: TimeAccuracy = TimeAccuracy.SECOND): Boolean = DateTimeUtil.isSame(this, date, accuracy)
 
 fun LocalDateTime.isNotSame(date: LocalDateTime?, accuracy: TimeAccuracy = TimeAccuracy.SECOND): Boolean = !this.isSame(date, accuracy)
 
-fun LocalDateTime.differenceOfDay(date: LocalDateTime): Int =
-    DateTimeUtil.differenceOfDay(this.toLocalDate(), date.toLocalDate())
+fun LocalDateTime.differenceOfDay(date: LocalDateTime): Int = DateTimeUtil.differenceOfDay(this.toLocalDate(), date.toLocalDate())
 
 fun LocalDateTime.differenceOfMinutes(date: LocalDateTime): Int = DateTimeUtil.differenceOfMinutes(this, date)
+
+fun LocalDateTime.differenceOfSeconds(date: LocalDateTime): Long = DateTimeUtil.differenceOfSeconds(this, date)
+
+fun LocalDateTime.differenceOfMillis(date: LocalDateTime): Long = DateTimeUtil.differenceOfMillis(this, date)
 
 fun LocalDateTime.dayBegin() = DateTimeUtil.dayBegin(this)
 
@@ -159,11 +171,9 @@ fun LocalDateTime.dayEnd() = DateTimeUtil.dayEnd(this)
 
 fun LocalDateTime.lastDayOfWeek(dayOfWeek: DayOfWeek) = DateTimeUtil.lastDayOfWeek(dayOfWeek, this)
 
-fun String.toDateTime(format: DateTimeFormatter = DateTimeConstant.Formatter.DATE_TIME_NORMAL): LocalDateTime =
-    DateTimeUtil.toDateTime(this, format)
+fun String.toDateTime(format: DateTimeFormatter = DateTimeConstant.Formatter.DATE_TIME_NORMAL): LocalDateTime = DateTimeUtil.toDateTime(this, format)
 
-fun String.toDateTimeString(fixTimeString: String = DateTimeConstant.STRING_TIME_BEGIN) =
-    DateTimeUtil.toDateTimeString(this, fixTimeString)
+fun String.toDateTimeString(fixTimeString: String = DateTimeConstant.STRING_TIME_BEGIN) = DateTimeUtil.toDateTimeString(this, fixTimeString)
 
 fun String.secondToDateTime(): LocalDateTime = this.toLong().secondToDateTime()
 
@@ -180,12 +190,16 @@ fun LocalDate.toJavaDate(): Date = DateTimeUtil.toJavaDate(this)
 fun LocalDateTime.formatting(format: DateTimeFormatter = DateTimeConstant.Formatter.DATE_TIME_NORMAL): String = this.format(format)
 
 fun main(args: Array<String>) {
-    val now = LocalDateTime.now()
-    val x = DayOfWeek.MONDAY.value
-    val n = now.dayOfWeek.value
-    // 通过这条公式计算距离上一个最近的星期X 应该 减去 ？ 天
-    val d = 7 - x + n - (if (x <= n) 7 else 0)
-    println(now.minusDays(d.toLong()).formatting())
+//    val now = LocalDateTime.now()
+//    val x = DayOfWeek.MONDAY.value
+//    val n = now.dayOfWeek.value
+//    // 通过这条公式计算距离上一个最近的星期X 应该 减去 ？ 天
+//    val d = 7 - x + n - (if (x <= n) 7 else 0)
+//    println(now.minusDays(d.toLong()).formatting())
+
+    val date1 = LocalDateTime.now()
+    val date2 = date1.plusMinutes(1)
+    println(date1.differenceOfMillis(date2))
 
 
 }

@@ -1,6 +1,7 @@
-package com.tuanzili.commons.mq
+package com.jxpanda.common.mq
 
-import com.tuanzili.commons.utils.CodeUtil
+import com.jxpanda.common.utils.CodeUtil
+import java.sql.Timestamp
 import java.time.LocalDateTime
 
 /**
@@ -9,19 +10,19 @@ import java.time.LocalDateTime
  * */
 @Suppress("UNCHECKED_CAST")
 data class KafkaMessage<T>(
-    /**
+        /**
          * 消息ID，默认使用雪花算法生成一个ID
          * */
         val id: String = CodeUtil.nextIdString(),
-    /**
+        /**
          * kafka的Topic
          * */
         val topic: String = "",
-    /**
+        /**
          * 消息发送的时间
          * */
         val timestamp: LocalDateTime = LocalDateTime.now(),
-    /**
+        /**
          * 消息体
          * */
         val data: T = Any() as T

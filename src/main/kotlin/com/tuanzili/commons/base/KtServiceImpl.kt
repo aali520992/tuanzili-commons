@@ -1,7 +1,6 @@
-package com.tuanzili.commons.base
+package com.jxpanda.common.base
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper
-import com.baomidou.mybatisplus.core.mapper.BaseMapper
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl
 import java.io.Serializable
@@ -11,12 +10,24 @@ import java.io.Serializable
  * 一味拥抱空安全设计或许不太科学
  * 目前先激进的试用一段时间，有问题再迭代吧，路要一步步走
  * */
-abstract class KtServiceImpl<M : BaseMapper<T>, T : Entity> : ServiceImpl<M, T>(), KtService<T> {
+abstract class KtServiceImpl<M : KtMapper<T>, T : Entity> : ServiceImpl<M, T>(), KtService<T> {
 
     abstract val emptyEntity: T
 
     override fun getById(id: Serializable): T {
         return super.getById(id) ?: emptyEntity
+    }
+
+    override fun delete(queryWrapper: Wrapper<T>): Boolean {
+        return baseMapper.physicalDelete(emptyEntity.tableName(), queryWrapper)
+    }
+
+    override fun deleteById(id: Serializable): Boolean {
+        return baseMapper.physicalDeleteById(emptyEntity.tableName(), id)
+    }
+
+    override fun deleteByIds(ids: List<Serializable>): Boolean {
+        return baseMapper.physicalDeleteByIds(emptyEntity.tableName(), ids)
     }
 
     override fun getOne(queryWrapper: Wrapper<T>): T {
@@ -29,6 +40,33 @@ abstract class KtServiceImpl<M : BaseMapper<T>, T : Entity> : ServiceImpl<M, T>(
 
     override fun updateById(updater: Entity.Updater<T>): Boolean {
         return update(updater.buildWrapper().eq(Entity.ID, updater.id))
+    }
+
+    override fun updateBatchById(updaterList: List<Entity.Updater<T>>): Boolean {
+        if (updaterList.isEmpty()) {
+            return false
+        }
+        updaterList.filter { !it.id.isNullOrBlank() }.forEach {
+            updateById(it)
+        }
+        return true
+    }
+
+    override fun saveOrUpdate(entity: T): Boolean {
+        return if (entity.id.isIdEffective()) {
+            updateById(entity)
+        } else {
+            save(entity)
+        }
+    }
+
+
+    override fun saveOrUpdate(updater: Entity.Updater<T>): Boolean {
+        return if (updater.id.isNullOrBlank()) {
+            save(updater.toEntity())
+        } else {
+            updateById(updater)
+        }
     }
 
     override fun list(): MutableList<T> {
@@ -74,6 +112,10 @@ abstract class KtServiceImpl<M : BaseMapper<T>, T : Entity> : ServiceImpl<M, T>(
 
     override fun pagination(seeker: Seeker<T>): Pagination<T> {
         return page(seeker.pagination.toPage(), seeker.buildQueryWrapper()).toPagination()
+    }
+
+    override fun selectList(seeker: Seeker<T>): List<T> {
+        return selectList(seeker.buildQueryWrapper())
     }
 
 }

@@ -1,9 +1,10 @@
-package com.tuanzili.commons.utils
+package com.jxpanda.common.utils
 
-import com.tuanzili.commons.encrypt.AES
-import com.tuanzili.commons.encrypt.MD5
-import com.tuanzili.commons.encrypt.RSA
-import com.tuanzili.commons.encrypt.SHA256
+
+import com.jxpanda.common.encrypt.MD5
+import com.jxpanda.common.encrypt.AES
+import com.jxpanda.common.encrypt.RSA
+import com.jxpanda.common.encrypt.SHA256
 
 
 /**
@@ -15,6 +16,7 @@ class EncryptUtil {
         val RSA = RSA()
         val MD5 = MD5()
         val SHA256 = SHA256()
-        val AES = AES()
+        val AES_EBC = AES.EBC()
+        val AES_CBC = AES.CBC()
     }
 }

@@ -1,10 +1,10 @@
-package com.tuanzili.commons.constants
+package com.jxpanda.common.constants
 
 import java.math.BigDecimal
 import java.text.DecimalFormat
 
 /**
- * Created by tuanzili on 2018/7/31
+ * Created by Panda on 2018/7/31
  */
 class DecimalConstant {
     companion object {

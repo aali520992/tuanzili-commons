@@ -1,4 +1,7 @@
-package com.tuanzili.commons.utils
+package com.jxpanda.common.utils
+
+import org.apache.commons.lang3.RandomUtils
+import java.math.BigDecimal
 
 class MathUtil {
 
@@ -17,4 +20,11 @@ class MathUtil {
 
     }
 
+}
+
+fun main() {
+    val x = 0
+    for (i in 1..x) {
+        println(i)
+    }
 }

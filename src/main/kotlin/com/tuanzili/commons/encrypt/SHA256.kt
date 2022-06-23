@@ -1,7 +1,7 @@
-package com.tuanzili.commons.encrypt
+package com.jxpanda.common.encrypt
 
-import com.tuanzili.commons.constants.enumerations.EncryptAlgorithm
-import com.tuanzili.commons.utils.EncryptUtil
+import com.jxpanda.common.constants.enumerations.EncryptAlgorithm
+import com.jxpanda.common.utils.EncryptUtil
 
 /**
  * SHA256加密算法
